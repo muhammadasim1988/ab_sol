@@ -22,8 +22,10 @@ class RegisterController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'interest' => 'required|array|distinct|max:2',
+            'interest' => 'required|array|distinct|max:4',
             'interest.*' => 'distinct',
+        ],[
+            "interest.distinct"=>"Duplicate interest value",
         ]);
 
         if($validator->fails()){
@@ -32,7 +34,7 @@ class RegisterController extends Controller
 
         DB::beginTransaction();
         try{
-
+            dd($request->interest);
             $user = User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
@@ -42,7 +44,8 @@ class RegisterController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
-
+            //UserInterests::
+             DB::commit();
              $token = $user->createToken('API Access Token')->accessToken;
              return response()->json(['status'=>0,'success'=>'User has been registerd successfully'], 200);
 
