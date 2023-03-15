@@ -10,7 +10,13 @@ class SiteController extends Controller
 {
     public function index(Request $request)
     {
-        return view('login');
+        $token = $request->session()->get('token');
+        if($token){
+            return redirect()->route('site.user.dashboard');
+        }else{
+            return view('login');
+        }
+
     }
 
     public function processLogin(Request $request)
@@ -33,7 +39,7 @@ class SiteController extends Controller
         }else{
             $request->session()->put('user_name', $response->user->name);
             $request->session()->put('token', $response->token);
-            return view('welcome');
+            return redirect()->route('site.user.dashboard');
         }
     }
     public function userRegister(Request $request)
@@ -78,10 +84,33 @@ class SiteController extends Controller
         $url = config('global.API_HOST_URL')."user/register";
         $response = Http::withHeaders(["Accept"=>"application/json","Content-Type"=>"application/json"])->post($url, $requestBody);
         $response = $response->object();
-        dd($response);
+        if($response->status==1){
+            return redirect()->back()->withErrors($response->error);
+        }else{
+            return redirect()->back()->with('success', $response->success);
+        }
     }
-    public function userDashboard(Request $reques)
+    public function userDashboard(Request $request)
     {
+        $token = $request->session()->get('token');
+        if($token){
+            $url = config('global.API_HOST_URL')."user/details";
+            $response = Http::withHeaders(["Accept"=>"application/json","Content-Type"=>"application/json"])->withToken($token)->get($url);
+            $response = $response->object();
+            if($response->status==0){
+                $userInfo = $response->data;
+                return view('welcome',compact('userInfo'));
+            }else{
+                return redirect()->back()->with('success', $response->success);
+            }
+        }else{
+             return redirect()->route('site.user.login');
+        }
+    }
 
+    public function logout(Request $request)
+    {
+        $request->session()->flush();
+        return redirect()->route('site.user.login');
     }
 }

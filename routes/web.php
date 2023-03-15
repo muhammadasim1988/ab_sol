@@ -21,4 +21,4 @@ Route::post('/user/login', [App\Http\Controllers\SiteController::class, 'process
 Route::get('/user/register', [App\Http\Controllers\SiteController::class, 'userRegister'])->name('site.user.register');
 Route::post('/user/register/process', [App\Http\Controllers\SiteController::class, 'processRegister'])->name('process.user.register');
 Route::get('/user/dashboard', [App\Http\Controllers\SiteController::class, 'userDashboard'])->name('site.user.dashboard');
-
+Route::get('/user/logout', [App\Http\Controllers\SiteController::class, 'logout'])->name('site.user.logout');

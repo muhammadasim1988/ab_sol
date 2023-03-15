@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Models\User;
+use App\Models\UserInterests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -22,8 +23,8 @@ class RegisterController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'interest' => 'required|array|distinct|max:4',
-            'interest.*' => 'distinct',
+            'interest' => 'required|array|distinct',
+            'interest.*' => 'distinct|exists:interest,id',
         ],[
             "interest.distinct"=>"Duplicate interest value",
         ]);
@@ -34,7 +35,7 @@ class RegisterController extends Controller
 
         DB::beginTransaction();
         try{
-            dd($request->interest);
+
             $user = User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
@@ -44,7 +45,16 @@ class RegisterController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
-            //UserInterests::
+            // insert bulk user interest
+            if($request->interest)
+            {
+                $userInterest = array();
+                foreach($request->interest as $interest)
+                {
+                     $userInterest[]= array('user_id'=>$user->id,'interest_id'=>$interest,'created_at'=>date('Y-m-d H:i:s'),'updated_at'=>date('Y-m-d H:i:s'));
+                }
+                UserInterests::insert($userInterest);
+            }
              DB::commit();
              $token = $user->createToken('API Access Token')->accessToken;
              return response()->json(['status'=>0,'success'=>'User has been registerd successfully'], 200);

@@ -16,6 +16,6 @@ use Illuminate\Support\Facades\Route;
 //Route::post('register', 'RegisterController@register');
 Route::post("user/register", [App\Http\Controllers\RegisterController::class, "register"])->name("user.register");
 Route::post("user/login", [App\Http\Controllers\LoginController::class, "login"])->name("user.login");
-// Route::middleware('auth:api')->group(function(){
-//     Route::get('user', [passportAuthController::class,'authenticatedUserDetails']);
-// });
+Route::middleware('auth:api')->group(function(){
+    Route::get('user/details', [App\Http\Controllers\UserController::class,'authenticatedUserDetails'])->name("user.details");
+});

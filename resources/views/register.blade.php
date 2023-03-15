@@ -29,6 +29,11 @@
     @if($errors->any())
         {{ implode('', $errors->all(':message')) }}
     @endif
+    @if(session()->has('success'))
+        <div class="alert alert-success">
+            {{ session()->get('success') }}
+        </div>
+    @endif
     <form method="POST" id="user-login-form" action="{{ route('process.user.register') }}" novalidate="novalidate" enctype="">
         @csrf
         <h2 class="text-center">Register</h2>
